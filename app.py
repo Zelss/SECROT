@@ -64,15 +64,25 @@ def breadth(stock_list):
 
     for s in stock_list:
         data = get_price(s)
+
         if data is None or len(data) < 60:
             continue
+
+        data = data.dropna()
 
         ma20 = data.rolling(20).mean()
         ma50 = data.rolling(50).mean()
 
-        if data.iloc[-1] > ma20.iloc[-1]:
+        if len(ma20) < 50 or len(ma50) < 50:
+            continue
+
+        last_price = float(data.iloc[-1])
+        ma20_val = float(ma20.iloc[-1])
+        ma50_val = float(ma50.iloc[-1])
+
+        if last_price > ma20_val:
             above20 += 1
-        if data.iloc[-1] > ma50.iloc[-1]:
+        if last_price > ma50_val:
             above50 += 1
 
         valid += 1
@@ -81,7 +91,9 @@ def breadth(stock_list):
         return 0, 0
 
     return (above20 / valid) * 100, (above50 / valid) * 100
+       
 
+    
 def leadership(stock_list):
     scores = []
     for s in stock_list:
